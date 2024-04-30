@@ -156,7 +156,12 @@ No known bugs at this time.
 ## Authors
 Alexa Orrico - [Github](https://github.com/alexaorrico) / [Twitter](https://twitter.com/alexa_orrico)  
 Jennifer Huang - [Github](https://github.com/jhuang10123) / [Twitter](https://twitter.com/earthtojhuang)
-
+Victor Mburu Ng'ang'a - [Github](https://github.com/MburuRionge) / [Twitter](https://twitter.com/MburuRionge)
 Second part of Airbnb: Joann Vuong
+
+# Contribution
+creating an api for this airbnb_clone project
+more testing and debugging
+
 ## License
 Public Domain. No copy write protection. 
