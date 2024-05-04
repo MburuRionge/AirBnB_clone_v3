@@ -1,7 +1,5 @@
 #!/usr/bin/python3
-"""
-index
-"""
+""" create a flask app, app_views"""
 
 from flask import jsonify
 from api.v1.views import app_views
