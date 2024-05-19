@@ -58,6 +58,29 @@ class DBStorage:
         """ adds objects to current database session """
         self.__session.add(obj)
 
+    def get(self, cls, id):
+        """
+        fetches specific object
+        :param cls: class of object as string
+        :param id: id of object as string
+        :return: found object or None
+        """
+        all_class = self.all(cls)
+
+        for obj in all_class.values():
+            if id == str(obj.id):
+                return obj
+
+        return None
+
+    def count(self, cls=None):
+        """
+        count of how many instances of a class
+        :param cls: class name
+        :return: count of instances of a class
+        """
+        return len(self.all(cls))
+
     def save(self):
         """ commits all changes of current database session """
         self.__session.commit()
@@ -79,27 +102,4 @@ class DBStorage:
         """
             calls remove() on private session attribute (self.session)
         """
-        self.__session.remove(i)
-
-    def get(self, cls, id):
-        """ retrieve an object from the file storage by class and id. """
-        if cls and id:
-            if cls in classes.values() and isinstance(id, str):
-                all_objects = self.all(cls)
-                for key, value in all_objects.items():
-                    if key.split('.')[1] == id:
-                        return value
-            else:
-                return
-        return
-
-    def count(self, cls=None):
-        """ count the number of objects in storage matcging the given class """
-        if not cls:
-            inst_of_all_cls = self.all()
-            return len(inst_of_all_cls)
-        if cls in classes.values():
-            all_inst_of_prov_cls = self.all(cls)
-            return len(all_inst_of_prov_cls)
-        if cls not in classes.values():
-            return
+        self.__session.remove()
