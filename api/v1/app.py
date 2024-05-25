@@ -6,7 +6,6 @@ app
 from flask import Flask, jsonify
 from flask_cors import CORS
 from os import getenv
-
 from api.v1.views import app_views
 from models import storage
 
@@ -19,7 +18,7 @@ app.register_blueprint(app_views)
 
 
 @app.teardown_appcontext
-def teardown(exception):
+def teardown_engine(exception):
     """
     teardown function
     """
@@ -32,14 +31,10 @@ def handle_404(exception):
     handles 404 error
     :return: returns 404 json
     """
-    data = {
-        "error": "Not found"
-    }
-
-    resp = jsonify(data)
-    resp.status_code = 404
-
-    return(resp)
+    resp = {"error": "Not found"}
+    return jsonify(response), 404
 
 if __name__ == "__main__":
-    app.run(getenv("HBNB_API_HOST"), getenv("HBNB_API_PORT"))
+    HOST = getenv('HBNB_API_HOST', '0.0.0.0')
+    PORT = int(getenv('HBNB_API_HOST', 5000)
+    app.run(debug=True, host=HOST, port=PORT, threaded=True)
