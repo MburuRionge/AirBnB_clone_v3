@@ -14,6 +14,18 @@ storage_type = os.environ.get('HBNB_TYPE_STORAGE')
 
 
 @unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
+class TestDBStorage(unittest.TestCase):
+
+    def setUp(self):
+        """Set up test environment"""
+        self.storage = DBStorage()
+
+    def tearDown(self):
+        """Tear down test environment"""
+        pass
+
+
+@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestDBStorageDocs(unittest.TestCase):
     """Class for testing BaseModel docs"""
 

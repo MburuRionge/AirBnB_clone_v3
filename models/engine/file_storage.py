@@ -3,8 +3,16 @@
 Handles I/O, writing and reading, of JSON for storage of all class instances
 """
 import json
-from models import base_model, amenity, city, place, review, state, user
+import os
+from models.base_model import BaseModel
+from models.amenity import Amenity
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.user import User
 from datetime import datetime
+
 
 strptime = datetime.strptime
 to_json = base_model.BaseModel.to_json
@@ -13,13 +21,13 @@ to_json = base_model.BaseModel.to_json
 class FileStorage:
     """handles long term storage of all class instances"""
     CNC = {
-        'BaseModel': base_model.BaseModel,
-        'Amenity': amenity.Amenity,
-        'City': city.City,
-        'Place': place.Place,
-        'Review': review.Review,
-        'State': state.State,
-        'User': user.User
+        'BaseModel': BaseModel,
+        'Amenity': Amenity,
+        'City': City,
+        'Place': Place,
+        'Review': Review,
+        'State': State,
+        'User': User
     }
     """CNC - this variable is a dictionary with:
     keys: Class Names
@@ -69,11 +77,11 @@ class FileStorage:
         if not cls:
             inst_of_all_cls = self.all()
             return len(inst_of_all_cls)
-        for class, value in classes.items():
+        for cls, value in CNC():
             if cls == clas or cls == value:
                 all_inst_of_prov_cls = self.all(cls)
                 return len(all_inst_of_prov_cls)
-        if cls not in classes.values():
+        if cls not in CNC.value():
             return
 
     def save(self):
@@ -82,6 +90,11 @@ class FileStorage:
         d = {}
         for bm_id, bm_obj in FileStorage.__objects.items():
             d[bm_id] = bm_obj.to_json()
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
+
+        # Write to the file
         with open(fname, mode='w+', encoding='utf-8') as f_io:
             json.dump(d, f_io)
 

@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-"""
-Unit Test for Amenity Class
-"""
+""" Unit Test for Amenity Class """
 import unittest
 from datetime import datetime
 import models
 import json
 import os
+
 
 Amenity = models.amenity.Amenity
 BaseModel = models.base_model.BaseModel
@@ -14,7 +13,7 @@ storage_type = os.environ.get('HBNB_TYPE_STORAGE')
 
 
 class TestAmenityDocs(unittest.TestCase):
-    """Class for testing BaseModel docs"""
+    """ Class for testing BaseModel docs """
 
     @classmethod
     def setUpClass(cls):
@@ -48,7 +47,24 @@ class TestAmenityInstances(unittest.TestCase):
 
     def setUp(self):
         """initializes new amenity for testing"""
+        fname = './dev/file.json'
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
+        # Ensure the file exists before running tests
+        open(fname, 'a').close()
         self.amenity = Amenity()
+
+    def tearDown(self):
+        """Clean up after tests"""
+        try:
+            os.remove('./dev/file.json')
+        except FileNotFoundError:
+            pass
+
+    def test_updated_at(self):
+        """Test that save function updates 'updated_at' attribute"""
+        old_updated_at = self.amenity.updated_at
+        self.amenity.save()
+        self.assertNotEqual(old_updated_at, self.amenity.updated_at)
 
     def test_instantiation(self):
         """... checks if Amenity is properly instantiated"""
