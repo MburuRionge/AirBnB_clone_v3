@@ -3,46 +3,32 @@
 BaseModel Class of Models Module
 """
 
-import os
+from os import getenv
 import json
 import models
-from uuid import uuid4, UUID
+from uuid import uuid4
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float, DateTime
 
-storage_type = os.environ.get('HBNB_TYPE_STORAGE')
 
-"""
-    Creates instance of Base if storage type is a database
-    If not database storage, uses class Base
-"""
-if storage_type == 'db':
+#Use getenv directly to check storage type
+if getenv('HBNB_TYPE_STORAGE') == 'db':
     Base = declarative_base()
-else:
-    class Base:
-        pass
-
+elae:
+    Base = object
 
 class BaseModel:
-    """
-        attributes and functions for BaseModel class
-    """
-
-    if storage_type == 'db':
-        id = Column(String(60), nullable=False, primary_key=True)
-        created_at = Column(DateTime, nullable=False,
-                            default=datetime.utcnow())
-        updated_at = Column(DateTime, nullable=False,
-                            default=datetime.utcnow())
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        id = Column(String(60), primary_key=True, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     def __init__(self, *args, **kwargs):
-        """instantiation of new BaseModel Class"""
+        """ Initialization code """
         self.id = str(uuid4())
         self.created_at = datetime.now()
-        if kwargs:
-            for key, value in kwargs.items():
-                setattr(self, key, value)
+        self.updated_at = datetime.now()
 
     def __is_serializable(self, obj_v):
         """
@@ -71,18 +57,11 @@ class BaseModel:
 
     def to_json(self):
         """returns json representation of self"""
-        bm_dict = {}
-        for key, value in (self.__dict__).items():
-            if (self.__is_serializable(value)):
-                bm_dict[key] = value
-            else:
-                bm_dict[key] = str(value)
-        bm_dict['__class__'] = type(self).__name__
-        if '_sa_instance_state' in bm_dict:
-            bm_dict.pop('_sa_instance_state')
-        if storage_type == "db" and 'password' in bm_dict:
-            bm_dict.pop('password')
-        return bm_dict
+        dictionary = self.__dict__.copy()
+        dictionary['__class__'] = self.__class__.name__
+        dictionary['created_at'] = self.created_at.isofrmat()
+        dictionary['updated_at'] = self.updated_at.isoformat()
+        return dictionary
 
     def __str__(self):
         """returns string type representation of object instance"""

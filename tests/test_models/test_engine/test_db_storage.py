@@ -3,29 +3,34 @@
 Unit Test for BaseModel Class
 """
 import unittest
-from datetime import datetime
-from models import *
-import os
-from models.base_model import Base
+from models.base_model import BaseModel
 from models.engine.db_storage import DBStorage
+from models.user import User
 
 
-storage_type = os.environ.get('HBNB_TYPE_STORAGE')
-
-
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestDBStorage(unittest.TestCase):
-
     def setUp(self):
         """Set up test environment"""
         self.storage = DBStorage()
+        self.storage.reload()
 
     def tearDown(self):
         """Tear down test environment"""
-        pass
+        self.storage.close()
+
+    def test_all_returns_dict(self):
+        """Test that all returns a dictionary"""
+        result = self.storage.all()
+        self.assertIsInstance(result, dict)
+
+    def test_new(self):
+        """Tests that new adds an object to the session"""
+        user = User(email="test@example.com", password="password")
+        self.storage.new(user)
+        self.storage.save()
+        self.assertIn(user, self.storage.all().values())
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestDBStorageDocs(unittest.TestCase):
     """Class for testing BaseModel docs"""
 
@@ -79,7 +84,6 @@ class TestDBStorageDocs(unittest.TestCase):
         self.assertEqual(expected, actual)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestStateDBInstances(unittest.TestCase):
     """testing for class instances"""
 
@@ -125,7 +129,6 @@ class TestStateDBInstances(unittest.TestCase):
         self.assertFalse(exist_in_all)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestUserDBInstances(unittest.TestCase):
     """testing for class instances"""
 
@@ -172,7 +175,6 @@ class TestUserDBInstances(unittest.TestCase):
         self.assertFalse(exist_in_all)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestCityDBInstances(unittest.TestCase):
     """testing for class instances"""
 
@@ -211,7 +213,6 @@ class TestCityDBInstances(unittest.TestCase):
         self.assertTrue(exist_in_all_city)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestCityDBInstancesUnderscore(unittest.TestCase):
     """testing for class instances"""
 
@@ -250,7 +251,6 @@ class TestCityDBInstancesUnderscore(unittest.TestCase):
         self.assertTrue(exist_in_all_city)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestPlaceDBInstances(unittest.TestCase):
     """testing for class instances"""
 
@@ -305,7 +305,6 @@ class TestPlaceDBInstances(unittest.TestCase):
         self.assertTrue(exist_in_all_place)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestStorageGet(unittest.TestCase):
     """
     Testing `get()` method in DBStorage
@@ -356,7 +355,6 @@ class TestStorageGet(unittest.TestCase):
         self.assertIsNone(result)
 
 
-@unittest.skipIf(storage_type != 'db', 'skip if environ is not db')
 class TestStorageCount(unittest.TestCase):
     """
     tests count() method in DBStorage
@@ -421,4 +419,4 @@ class TestStorageCount(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main
+    unittest.main()
