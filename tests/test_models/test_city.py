@@ -3,14 +3,24 @@
 Unit Test for City Class
 """
 import unittest
-from datetime import datetime
-import models
+from datetime import DateTime
+from models.city import City
 import json
 import os
 
-City = models.city.City
+
 BaseModel = models.base_model.BaseModel
 storage_type = os.environ.get('HBNB_TYPE_STORAGE')
+
+class TestCity(unittest.TestCase):
+    def test_instance(self):
+        city = City()
+        self.assertIsInstance(city, City)
+
+    def test_attributes(Self):
+        city = City()
+        self.assertEqual(city.state_id, "")
+        self.assertEqual(city.name, "")
 
 
 class TestCityDocs(unittest.TestCase):
@@ -116,4 +126,4 @@ class TestCityInstances(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main
+    unittest.main()

@@ -27,6 +27,12 @@ class TestDBStorage(unittest.TestCase):
         """Tests that new adds an object to the session"""
         user = User(email="test@example.com", password="password")
         self.storage.new(user)
+        self.assertIn(user, self.storage._DBStorage__session)
+
+    def test_save(self):
+        """Test that save propert commits to the database"""
+        user = User(email="test@example.com", password="password")
+        self.storage.new(user)
         self.storage.save()
         self.assertIn(user, self.storage.all().values())
 

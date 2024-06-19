@@ -59,16 +59,12 @@ class FileStorage:
         :return: object or None
         """
         if cls and id:
-            if cls in classes.values() and isinstance(id, str):
+            if cls in FileStorage.CNC.values() and isinstance(id, str):
                 all_objects = self.all(cls)
                 for key, value in all_objects.items():
                     if key.split('.')[1] == id:
                         return value
-            else:
-                return
-
-
-        return
+        return None
 
     def count(self, cls=None):
         """
@@ -77,12 +73,10 @@ class FileStorage:
         if not cls:
             inst_of_all_cls = self.all()
             return len(inst_of_all_cls)
-        for cls, value in CNC():
-            if cls == clas or cls == value:
-                all_inst_of_prov_cls = self.all(cls)
-                return len(all_inst_of_prov_cls)
-        if cls not in CNC.value():
-            return
+        for cls in FileStorage.CNC.keys() or cls in FileStorage.CNC.values():
+            all_inst_of_prov_cls = self.all(cls)
+            return len(all_inst_of_prov_cls)
+        return 0
 
     def save(self):
         """serializes __objects to the JSON file (path: __file_path)"""

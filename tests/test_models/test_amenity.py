@@ -2,15 +2,19 @@
 """ Unit Test for Amenity Class """
 import unittest
 from datetime import datetime
-import models
+import models.amenity import Amenity
 import json
 import os
 
 
-Amenity = models.amenity.Amenity
 BaseModel = models.base_model.BaseModel
 storage_type = os.environ.get('HBNB_TYPE_STORAGE')
 
+
+class TestAmenity(unittest.TestCase):
+    def test_amenity_name(self):
+        amenity = Amenity()
+        self.assertEqual(amenity.name, "")
 
 class TestAmenityDocs(unittest.TestCase):
     """ Class for testing BaseModel docs """
@@ -131,4 +135,4 @@ class TestAmenityInstances(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main
+    unittest.main()

@@ -35,7 +35,7 @@ class DBStorage:
                                         pool_pre_ping=True)
 
         if getenv('HBNB_ENV') == 'test':
-            Base.metadat.drop_all(self.__engine)
+            Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
         """ returns a dictionary of all objects """
@@ -96,7 +96,7 @@ class DBStorage:
 
     def delete(self, obj=None):
         """ deletes obj from current database session if not None """
-        if obj is not None:
+        if obj:
             self.__session.delete(obj)
 
     def reload(self):

@@ -3,8 +3,11 @@
 route for handling Place objects and operations
 """
 from flask import jsonify, abort, request
-from api.v1.views import app_views, storage
+from api.v1.views import app_views
+from storage import storage
 from models.place import Place
+from nodels.city import City
+from models.user import User
 
 
 @app_views.route("/cities/<city_id>/places", methods=["GET"],
@@ -16,6 +19,8 @@ def places_by_city(city_id):
     """
     place_list = []
     city_obj = storage.get("City", str(city_id))
+    if not city_obj:
+        abort(404)
     for obj in city_obj.places:
         place_list.append(obj.to_json())
 
@@ -32,12 +37,12 @@ def place_create(city_id):
     place_json = request.get_json(silent=True)
     if place_json is None:
         abort(400, 'Not a JSON')
+    if "user_id" not in place_json:
+        abort(400, 'Missing user_id')
     if not storage.get("User", place_json["user_id"]):
         abort(404)
     if not storage.get("City", city_id):
         abort(404)
-    if "user_id" not in place_json:
-        abort(400, 'Missing user_id')
     if "name" not in place_json:
         abort(400, 'Missing name')
 
@@ -61,10 +66,8 @@ def place_by_id(place_id):
     """
 
     fetched_obj = storage.get("Place", str(place_id))
-
     if fetched_obj is None:
         abort(404)
-
     return jsonify(fetched_obj.to_json())
 
 
@@ -77,15 +80,12 @@ def place_put(place_id):
     :return: Place object and 200 on success, or 400 or 404 on failure
     """
     place_json = request.get_json(silent=True)
-
     if place_json is None:
         abort(400, 'Not a JSON')
 
     fetched_obj = storage.get("Place", str(place_id))
-
     if fetched_obj is None:
         abort(404)
-
     for key, val in place_json.items():
         if key not in ["id", "created_at", "updated_at", "user_id", "city_id"]:
             setattr(fetched_obj, key, val)

@@ -9,13 +9,13 @@ import models
 from uuid import uuid4
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
 
 
 #Use getenv directly to check storage type
 if getenv('HBNB_TYPE_STORAGE') == 'db':
     Base = declarative_base()
-elae:
+else:
     Base = object
 
 class BaseModel:
@@ -26,9 +26,20 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """ Initialization code """
-        self.id = str(uuid4())
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        if getenv('HBNB_TYPE_STORAGE') != 'db':
+            self.id = str(uuid4())
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+
+        for key, value in kwargs.items():
+            if key != "__class__":
+                setattr(self, key, value)
+        if 'id' not in kwargs:
+            self.id = str(uuid4())
+        if 'created_at' not in kwargs:
+            self.created_at = datetime.now()
+        if 'updated-at' not in kwargs:
+            self.updated_at = datetime.now()
 
     def __is_serializable(self, obj_v):
         """
@@ -45,21 +56,20 @@ class BaseModel:
             updates the basemodel and sets the correct attributes
         """
         setattr(self, name, value)
-        if storage_type != 'db':
+        if getenv('HBNB_TYPE_STORAGE') != 'db':
             self.save()
 
     def save(self):
         """updates attribute updated_at to current time"""
-        if storage_type != 'db':
-            self.updated_at = datetime.now()
+        self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
 
-    def to_json(self):
+    def to_dict(self):
         """returns json representation of self"""
         dictionary = self.__dict__.copy()
-        dictionary['__class__'] = self.__class__.name__
-        dictionary['created_at'] = self.created_at.isofrmat()
+        dictionary['__class__'] = self.__class__.__name__
+        dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
         return dictionary
 
@@ -72,4 +82,4 @@ class BaseModel:
         """
             deletes current instance from storage
         """
-        self.delete()
+        models.storage.delete(self)
