@@ -3,23 +3,30 @@
 Handles I/O, writing and reading, of JSON for storage of all class instances
 """
 import json
-from models import base_model, amenity, city, place, review, state, user
+import os
+from models.base_model import BaseModel
+from models.amenity import Amenity
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.user import User
 from datetime import datetime
 
 strptime = datetime.strptime
-to_json = base_model.BaseModel.to_json
+to_json = BaseModel.to_json
 
 
 class FileStorage:
     """handles long term storage of all class instances"""
     CNC = {
-        'BaseModel': base_model.BaseModel,
-        'Amenity': amenity.Amenity,
-        'City': city.City,
-        'Place': place.Place,
-        'Review': review.Review,
-        'State': state.State,
-        'User': user.User
+        'BaseModel': BaseModel,
+        'Amenity': Amenity,
+        'City': City,
+        'Place': Place,
+        'Review': Review,
+        'State': State,
+        'User': User
     }
     """CNC - this variable is a dictionary with:
     keys: Class Names
@@ -33,7 +40,7 @@ class FileStorage:
         if cls:
             objects_dict = {}
             for class_id, obj in FileStorage.__objects.items():
-                if type(obj).__name__ == cls:
+                if type(obj).__name__ == cls or cls == type(obj):
                     objects_dict[class_id] = obj
             return objects_dict
         return FileStorage.__objects
@@ -50,11 +57,12 @@ class FileStorage:
         :param id: id of instance
         :return: object or None
         """
-        all_class = self.all(cls)
-
-        for obj in all_class.values():
-            if id == str(obj.id):
-                return obj
+        if cls and id:
+            if cls in FileStorage.CNC.values() and isinstance(id, str):
+                all_objects = self.all(cls)
+                for key, value in all_objects.items():
+                    if key.split('.')[1] == id:
+                        return value
 
         return None
 
@@ -65,7 +73,14 @@ class FileStorage:
         :return: number of instances
         """
 
-        return len(self.all(cls))
+        if cls:
+            if cls in FileStorage.CNC.keys() or cls in FileStorage.CNC.values():
+                all_inst_of_prov_cls = self.all(cls)
+                return len(all_inst_of_prov_cls)
+        else:
+            inst_of_all_cls = self.all()
+            return len(inst_of_all_cls)
+        return 0
 
     def save(self):
         """serializes __objects to the JSON file (path: __file_path)"""
@@ -73,6 +88,11 @@ class FileStorage:
         d = {}
         for bm_id, bm_obj in FileStorage.__objects.items():
             d[bm_id] = bm_obj.to_json()
+
+        # ensure the directory exists
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
+
+        # write to the file
         with open(fname, mode='w+', encoding='utf-8') as f_io:
             json.dump(d, f_io)
 
@@ -83,7 +103,7 @@ class FileStorage:
         try:
             with open(fname, mode='r', encoding='utf-8') as f_io:
                 new_objs = json.load(f_io)
-        except:
+        except Exception:
             return
         for o_id, d in new_objs.items():
             k_cls = d['__class__']
@@ -99,12 +119,12 @@ class FileStorage:
         if obj is None:
             return
         for k in list(FileStorage.__objects.keys()):
-            if obj.id == k.split(".")[1] and k.split(".")[0] in str(obj):
+            if obj.id == k.split(".")[1] and k.split(".")[0] == type(obj).__name__:
                 FileStorage.__objects.pop(k, None)
                 self.save()
 
     def close(self):
         """
-            calls the reload() method for deserialization from JSON to objects
+        calls the reload() method for deserialization from JSON to objects
         """
         self.reload()

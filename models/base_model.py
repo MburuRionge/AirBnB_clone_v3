@@ -72,6 +72,10 @@ class BaseModel:
             new_dict.pop('password', None)
         return new_dict
 
+    def to_json(self):
+        """Converts instance to JSON format"""
+        return self.__dict__
+
     def delete(self):
         """delete the current instance from the storage"""
         models.storage.delete(self)
