@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Database engine """
+""" Database engine"""
 
 from os import getenv
 from sqlalchemy import create_engine, MetaData
@@ -14,11 +14,11 @@ from models.user import User
 
 
 class DBStorage:
-    """handles storage for database"""
+    """ handles storage for database """
     __engine = None
     __session = None
 
-    """ handles longterm storage of all class indtances"""
+    """handles long term storage of all class instances"""
     CNC = {
         'BaseModel': BaseModel,
         'Amenity': Amenity,
@@ -31,8 +31,13 @@ class DBStorage:
 
     def __init__(self):
         """ creates the engine self.__engine """
-        self.__engine = create_engine(getenv('HBNB_MYSQL_USER'),
-                                        pool_pre_ping=True)
+        user = getenv('HBNB_MYSQL_USER')
+        password = getenv('HBNB_MYSQL_PWD')
+        host = getenv('HBNB_MYSQL_HOST')
+        db = getenv('HBNB_MYSQL_DB')
+        db_url = f'mysql+mysqldb://{user}:{password}@{host}/{db}'
+
+        self.__engine = create_engine(db_url, pool_pre_ping=True)
 
         if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
@@ -65,31 +70,25 @@ class DBStorage:
         :param id: id of object as string
         :return: found object or None
         """
-        if cls and id:
-            if cls in classes.values() and isinstance(id, str):
-                all_objects = self.all(cls)
-                for key, value in all_objects.items():
-                    if key.split('.')[1] == id:
-                        return value
-            else:
-                return
-
-
-        return
+        if cls and id;
+        if cls in self.CNC.values() and isinstance(id, str):
+            all_objects = self.all(cls)
+            for key, value in all_objects.items():
+                if key.split('.')[1] == id:
+                    return value
+        return None
 
     def count(self, cls=None):
         """
         count of instancesparam cls: class return: number of instancce
         """
-        if not cls:
-            inst_of_all_cls = self.all()
-            return len(inst_of_all_cls)
-        for cls, value in classes.items():
-            if cls == clas or cls == value:
-                all_inst_of_prov_cls = self.all(cls)
-                return len(all_inst_of_prov_cls)
-        if cls not in classes.values():
-            return
+        if cls:
+            if cls in self.CNC.values():
+                return len(self.all(cls))
+        else:
+            return len(self.all())
+        return 0
+
     def save(self):
         """ commits all changes of current database session """
         self.__session.commit()

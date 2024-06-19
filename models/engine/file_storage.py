@@ -15,7 +15,7 @@ from datetime import datetime
 
 
 strptime = datetime.strptime
-to_json = base_model.BaseModel.to_json
+to_json = BaseModel.to_json
 
 
 class FileStorage:
@@ -41,7 +41,7 @@ class FileStorage:
         if cls:
             objects_dict = {}
             for class_id, obj in FileStorage.__objects.items():
-                if type(obj).__name__ == cls:
+                if type(obj).__name__ == cls or cls == type(obj):
                     objects_dict[class_id] = obj
             return objects_dict
         return FileStorage.__objects
@@ -70,12 +70,13 @@ class FileStorage:
         """
         count of instancesparam cls: class return: number of instances
         """
-        if not cls:
+        if cls:
+            if cls in FileStorage.CNC.keys() or cls in FileStorage.CNC.values():
+                all_inst_of_prov_cls = self.all(cls)
+                return len(all_inst_of_prov_cls)
+        else:
             inst_of_all_cls = self.all()
             return len(inst_of_all_cls)
-        for cls in FileStorage.CNC.keys() or cls in FileStorage.CNC.values():
-            all_inst_of_prov_cls = self.all(cls)
-            return len(all_inst_of_prov_cls)
         return 0
 
     def save(self):
@@ -84,11 +85,10 @@ class FileStorage:
         d = {}
         for bm_id, bm_obj in FileStorage.__objects.items():
             d[bm_id] = bm_obj.to_json()
-
-        # Ensure the directory exists
+        # ensure the directory exists
         os.makedirs(os.path.dirname(fname), exist_ok=True)
 
-        # Write to the file
+        # write to the file
         with open(fname, mode='w+', encoding='utf-8') as f_io:
             json.dump(d, f_io)
 
@@ -115,12 +115,12 @@ class FileStorage:
         if obj is None:
             return
         for k in list(FileStorage.__objects.keys()):
-            if obj.id == k.split(".")[1] and k.split(".")[0] in str(obj):
+            if obj.id == k.split(".")[1] and k.split(".")[0] == type(obj).__name__:
                 FileStorage.__objects.pop(k, None)
                 self.save()
 
     def close(self):
         """
-            calls the reload() method for deserialization from JSON to objects
+        calls the reload() method for deserialization from JSON to objects
         """
         self.reload()
